@@ -1,74 +1,13 @@
 # Data analysis
 - Document here the project: youtubedata
-- Description: Project Description
-- Data Source:
-- Type of analysis:
+- Description: Data wrangling and simple EDA
+- Data Source: https://www.kaggle.com/datasnaek/youtube-new
+- Type of analysis: EDA
 
 Please document the project the better you can.
 
 # Startup the project
 
-The initial setup.
-
-Create virtualenv and install the project:
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv ~/venv ; source ~/venv/bin/activate ;\
-    pip install pip -U; pip install -r requirements.txt
-```
-
-Unittest test:
-```bash
-make clean install test
-```
-
-Check for youtubedata in gitlab.com/{group}.
-If your project is not set please add it:
-
-- Create a new project on `gitlab.com/{group}/youtubedata`
-- Then populate it:
-
-```bash
-##   e.g. if group is "{group}" and project_name is "youtubedata"
-git remote add origin git@github.com:{group}/youtubedata.git
-git push -u origin master
-git push -u origin --tags
-```
-
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-youtubedata-run
-```
-
-# Install
-
-Go to `https://github.com/{group}/youtubedata` to see the project, manage issues,
-setup you ssh public key, ...
-
-Create a python3 virtualenv and activate it:
-
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv -ppython3 ~/venv ; source ~/venv/bin/activate
-```
-
-Clone the project and install it:
-
-```bash
-git clone git@github.com:{group}/youtubedata.git
-cd youtubedata
-pip install -r requirements.txt
-make clean install test                # install and test
-```
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-youtubedata-run
-```
+- Download the data from https://www.kaggle.com/datasnaek/youtube-new
+- unzip it locally inside raw_data : csv and JSON files will live there. Youn can remove the JSON files, as we are sourcing only the csv files
+- `pip install youtubedata`
