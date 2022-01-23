@@ -68,6 +68,14 @@
 
 # <codecell>
 
+from youtubedata.preproc import get_data
+from youtubedata.preproc import add_country_col
+from youtubedata.preproc import merge_all_df
+from youtubedata.preproc import get_data
+from youtubedata.preproc import get_data
+
+# <codecell>
+
 import pathlib
 import pandas as pd
 import numpy as np
@@ -96,69 +104,19 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 # <codecell>
 
-current_path = Path.cwd()
-current_path
-
-# <codecell>
-
-p = current_path.parent
-p
-
-# <codecell>
-
-country_id_list = [f.stem[:2] for f in p.glob("**/*.csv")]
-country_id_list
-
-# <codecell>
-
-paths_list = [f for f in p.glob("**/*.csv")]
-paths_list
-
-# <codecell>
-
-df_list = [pd.read_csv(path) for path in paths_list]
-
-if output != None:
-    pprint(df_countries)
-
-if output != None:
-    pprint(df_countries)
-
-# <codecell>
-
-def get_data(output=None):
-    """returns a tuple of (list of dataframes, list of matching countries ID)"""
-    current_path = Path.cwd()
-    p = current_path.parent
-    country_id_list = [f.stem[:2] for f in p.glob("**/*.csv")]
-    paths_list = [f for f in p.glob("**/*.csv")]
-    df_list = [pd.read_csv(path) for path in paths_list]
-    
-    if output != None:
-        pprint(df_countries)
-
-    if output != None:
-        pprint(df_countries)
-        
-    return df_list, country_id_list
-
-# <codecell>
-
 df_list, country_id_list = get_data()
+
+# <codecell>
+
+df_list
+
+# <codecell>
+
+country_id_list
 
 # <markdowncell>
 
 # ### Merge 10 dataframes into one
-
-# <codecell>
-
-# keep track of country id in file name inside the dfs
-def add_country_col(df_list, country_id_list):
-    return [
-    df_list[idx].assign(country=country_id)
-    for (idx, df) , country_id
-    in zip(enumerate(df_list), country_id_list)
-]
 
 # <codecell>
 
@@ -167,11 +125,6 @@ df_list_with_country = add_country_col(df_list, country_id_list)
 # <codecell>
 
 df_list_with_country
-
-# <codecell>
-
-def merge_all_df(df_list_with_country):
-    return pd.concat(df_list_with_country)
 
 # <codecell>
 
