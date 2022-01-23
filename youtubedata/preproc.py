@@ -1,8 +1,6 @@
-import pathlib
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 import cookbook_eda as eda
 
 from pathlib import Path
@@ -56,7 +54,9 @@ def get_youtube_categories():
 
 def clean_data(df):
     return (
-        df.assign(category_id=lambda df_: pd.Categorical(df_.category_id))
+        df.drop_duplicates()
+        .reset_index(drop=True)
+        .assign(category_id=lambda df_: pd.Categorical(df_.category_id))
         .assign(country=lambda df_: pd.Categorical(df_.country))
         .assign(
             trending_date=lambda df_: pd.to_datetime(
@@ -69,19 +69,18 @@ def clean_data(df):
         .assign(dislikes=lambda df_: df_.dislikes.astype(np.int32))
         .assign(comment_count=lambda df_: df_.comment_count.astype(np.int32))
         .assign(
-            video_id=optimized_df.video_id.mask(
-                (optimized_df.video_id == "#NAME?")
-                | (optimized_df.video_id == "#VALUE!"),
-                optimized_df.thumbnail_link.str.replace("/default.jpg", "")
+            video_id=lambda df_: df_.video_id.mask(
+                (df_.video_id == "#NAME?") | (df_.video_id == "#VALUE!"),
+                df_.thumbnail_link.str.replace("/default.jpg", "")
                 .str.replace("/default_live.jpg", "")
                 .str[23:],
             )
         )
         .assign(
-            title=optimized_df.title.str.lower(),
-            channel_title=optimized_df.channel_title.str.lower(),
-            tags=optimized_df.tags.str.lower(),
-            description=optimized_df.description.str.lower(),
+            title=lambda df_: df_.title.str.lower(),
+            channel_title=lambda df_: df_.channel_title.str.lower(),
+            tags=lambda df_: df_.tags.str.lower(),
+            description=lambda df_: df_.description.str.lower(),
         )
         .merge(
             get_youtube_categories(),
@@ -107,6 +106,7 @@ def main():
     all_df.head(5)
     clean_df = clean_data(all_df)
     clean_df.head(5)
+    mem_report(all_df, clean_df)
 
 
 if __name__ == "__main__":

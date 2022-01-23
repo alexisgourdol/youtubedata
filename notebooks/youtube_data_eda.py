@@ -64,24 +64,29 @@
 
 # <codecell>
 
+%load_ext autoreload
+%autoreload 2
+
+# <codecell>
+
 #!pip install more-itertools 
 
 # <codecell>
 
+import cookbook_eda as eda
+
 from youtubedata.preproc import get_data
 from youtubedata.preproc import add_country_col
 from youtubedata.preproc import merge_all_df
-from youtubedata.preproc import get_data
-from youtubedata.preproc import get_data
+from youtubedata.preproc import mem_report
+from youtubedata.preproc import clean_data
 
 # <codecell>
 
-import pathlib
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import cookbook_eda as eda
 
 from pathlib import Path
 from pprint import pprint
@@ -108,11 +113,9 @@ df_list, country_id_list = get_data()
 
 # <codecell>
 
-df_list
-
-# <codecell>
-
-country_id_list
+print([type(df) for df in df_list]) # [ pandas.core.frame.DataFrame ... x10 ]
+print(df_list[0])                   # [ video_id trending_date  title ... description ]
+print(country_id_list)              # ['MX', 'IN', 'DE', 'JP', 'KR', 'CA', 'RU', 'FR', 'US', 'GB']
 
 # <markdowncell>
 
@@ -124,7 +127,8 @@ df_list_with_country = add_country_col(df_list, country_id_list)
 
 # <codecell>
 
-df_list_with_country
+print(df_list_with_country[0].columns) # ['video_id' ...  'country']
+print(df_list_with_country[0])         # [ video_id trending_date  title ... country ]
 
 # <codecell>
 
@@ -192,7 +196,7 @@ all_df.dtypes.rename("data_types").sort_values().to_frame().T
 
 # <codecell>
 
-eda_df= eda.enriched_describe(all_df)
+eda_df = eda.enriched_describe(all_df)
 eda_df
 
 # <codecell>
@@ -328,15 +332,6 @@ hist_cat_cols(small_df)
 # <markdowncell>
 
 # # Data Cleaning
-
-# <codecell>
-
-def mem_report(all_df, optimized_df):
-    original_size  = all_df.memory_usage(deep=True).sum()       // 1_000_000
-    optimized_size = optimized_df.memory_usage(deep=True).sum() // 1_000_000
-
-    print(f"{original_size} MB ==> {optimized_size} MB")
-    print(f"{(1 - ((optimized_size / original_size))) * 100:.2f}% saved")
 
 # <markdowncell>
 
@@ -492,15 +487,23 @@ optimized_df.video_id
 
 # <codecell>
 
+optimized_df.query("video_id == '#NAME?'")
+
+# <codecell>
+
 optimized_df = optimized_df.assign(
-    video_id=optimized_df.video_id.mask(
-        (optimized_df.video_id == "#NAME?") | (optimized_df.video_id == "#VALUE!"),
-        optimized_df.thumbnail_link.str.replace("/default.jpg", "")
+    video_id=lambda df_: df_.video_id.mask(
+        (df_.video_id == "#NAME?") | (df_.video_id == "#VALUE!"),
+        df_.thumbnail_link.str.replace("/default.jpg", "")
             .str.replace("/default_live.jpg", "")
             .str[23:],
     )
 )
 optimized_df
+
+# <codecell>
+
+optimized_df.query("video_id == '#NAME?'")
 
 # <markdowncell>
 
@@ -509,10 +512,10 @@ optimized_df
 # <codecell>
 
 optimized_df = optimized_df.assign(
-    title=optimized_df.title.str.lower(),
-    channel_title=optimized_df.channel_title.str.lower(),
-    tags=optimized_df.tags.str.lower(),
-    description=optimized_df.description.str.lower()
+    title= lambda df_: df_.title.str.lower(),
+    channel_title= lambda df_: df_.channel_title.str.lower(),
+    tags= lambda df_: df_.tags.str.lower(),
+    description= lambda df_: df_.description.str.lower()
 )
 
 # <codecell>
@@ -557,7 +560,7 @@ optimized_df.sample(5)
 
 # <markdowncell>
 
-# ## Process `tags`
+# ## TO-DO : Process `tags`
 
 # <codecell>
 
@@ -633,31 +636,11 @@ optimized_df[mask]
 
 # <codecell>
 
-def clean_df(df):
-    return (df.assign(category_id=  lambda df_: pd.Categorical(df_.category_id))
-              .assign(country=      lambda df_: pd.Categorical(df_.country))
-              .assign(trending_date=lambda df_: pd.to_datetime(df_.trending_date, format="%y.%d.%m"))
-              .assign(publish_time= lambda df_: pd.to_datetime(df_.publish_time))
-              .assign(views=        lambda df_: df_.views.astype(np.int32))
-              .assign(likes=        lambda df_: df_.likes.astype(np.int32))
-              .assign(dislikes=     lambda df_: df_.dislikes.astype(np.int32))
-              .assign(comment_count=lambda df_: df_.comment_count.astype(np.int32))
-              .assign(video_id=optimized_df.video_id.mask(
-                        (optimized_df.video_id == "#NAME?") | (optimized_df.video_id == "#VALUE!"),
-                         optimized_df.thumbnail_link.str.replace("/default.jpg", "")
-                                                    .str.replace("/default_live.jpg", "")
-                                                    .str[23:])
-                     )
-              .assign(title=optimized_df.title.str.lower(),
-                      channel_title=optimized_df.channel_title.str.lower(),
-                      tags=optimized_df.tags.str.lower(),
-                      description=optimized_df.description.str.lower())
-              .merge(get_youtube_categories(), 
-                      how='left', 
-                      left_on='category_id', 
-                      right_on='category_id')
-)
-clean_df(all_df)
+clean_df = clean_data(all_df)
+
+# <codecell>
+
+clean_df.memory_usage().sum()
 
 # <codecell>
 
