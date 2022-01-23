@@ -12,7 +12,11 @@ from sklearn.feature_extraction.text import CountVectorizer
 def get_data(output=None):
     """returns a tuple of (list of dataframes, list of matching countries ID)"""
     current_path = Path.cwd()
-    p = current_path.parent
+    # if/else to have `make test` working as`
+    if current_path.stem != "youtubedata":
+        p = current_path.parent
+    else:
+        p = current_path
     country_id_list = [f.stem[:2] for f in p.glob("**/*.csv")]
     paths_list = [f for f in p.glob("**/*.csv")]
     df_list = [pd.read_csv(path) for path in paths_list]

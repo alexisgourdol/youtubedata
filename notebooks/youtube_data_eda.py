@@ -109,12 +109,16 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 # <codecell>
 
+!tree ..
+
+# <codecell>
+
 df_list, country_id_list = get_data()
 
 # <codecell>
 
 print([type(df) for df in df_list]) # [ pandas.core.frame.DataFrame ... x10 ]
-print(df_list[0])                   # [ video_id trending_date  title ... description ]
+print(df_list[0].shape)             # [ video_id trending_date  title ... description ]
 print(country_id_list)              # ['MX', 'IN', 'DE', 'JP', 'KR', 'CA', 'RU', 'FR', 'US', 'GB']
 
 # <markdowncell>
